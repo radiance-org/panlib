@@ -32,26 +32,6 @@ endif()
 # Get the path to the common directory
 set(RADIANCE_COMMON_DIR ${radiance_SOURCE_DIR}/src/common)
 
-# libjpeg-turbo
-# ExternalProject_Add(libjpeg-turbo_external
-#     GIT_REPOSITORY https://github.com/libjpeg-turbo/libjpeg-turbo
-#     GIT_TAG 3.1.0
-#     CMAKE_ARGS
-#         -DENABLE_SHARED=OFF
-#         -DENABLE_STATIC=ON
-#         -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-# )
-# ExternalProject_Get_Property(libjpeg-turbo_external INSTALL_DIR)
-# set(JPEG_TURBO_INCLUDE_DIR ${INSTALL_DIR}/include)
-# set(JPEG_TURBO_INCLUDE_DIR2 ${INSTALL_DIR}/src/libjpeg-turbo_external-build)
-# set(JPEG_TURBO_LIBRARY_DIR ${INSTALL_DIR}/lib)
-# ExternalProject_Get_Property(libjpeg-turbo_external SOURCE_DIR)
-# set(JPEG_TURBO_INCLUDE_DIR3 ${SOURCE_DIR}/src)
-
-# Set download location for libjpeg
-set(JPEG_SOURCE_DIR external/jpeg-6b)
-# set(JPEG_INSTALL_DIR ${CMAKE_BINARY_DIR}/jpeg-install)
-
 # OpenEXR
 ExternalProject_Add(openexr_external
     GIT_REPOSITORY https://github.com/mitsuba-renderer/openexr
@@ -61,6 +41,19 @@ ExternalProject_Add(openexr_external
         -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
 	-DBUILD_TESTING=OFF
 )
+
+ExternalProject_Add(libjpeg
+    GIT_REPOSITORY https://github.com/libjpeg-turbo/libjpeg-turbo
+    GIT_TAG 3.1.0
+    CMAKE_ARGS
+	-DENABLE_SHARED=FALSE
+	-DENABLE_STATIC=TRUE
+	-DWITH_TURBOJPEG=FALSE
+        -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+	-DBUILD_TESTING=OFF
+)
+
+
 
 # Configure libtiff options
 set(BUILD_SHARED_LIBS OFF)
@@ -93,8 +86,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(libtiff)
 
-
 # Set up include directories
+ExternalProject_Get_Property(libjpeg INSTALL_DIR)
+set(LIBJPEG_INCLUDE_DIR ${INSTALL_DIR}/include)
+set(LIBJPEG_LIBRARY_DIR ${INSTALL_DIR}/lib)
+set(LIBJPEG_INCLUDE_DIR2 ${INSTALL_DIR}/src/libjpeg-build)
+ExternalProject_Get_Property(libjpeg SOURCE_DIR)
+set(LIBJPEG_INCLUDE_DIR3 ${SOURCE_DIR}/src)
 
 ExternalProject_Get_Property(openexr_external INSTALL_DIR)
 set(OPENEXR_INCLUDE_DIR ${INSTALL_DIR}/include/OpenEXR)
@@ -163,7 +161,7 @@ target_include_directories(pan
 
 target_link_libraries(pan PRIVATE jpeg-turbo tiff openexr m)
 target_link_directories(pan PRIVATE ${JPEG_TURBO_LIBRARY_DIR} ${OPENEXR_LIBRARY_DIR} ${TIFF_LIBRARY_DIR})
-target_include_directories(pan PRIVATE ${RADIANCE_COMMON_DIR} ${libtiff_SOURCE_DIR}/libtiff ${JPEG_SOURCE_DIR} ${OPENEXR_INCLUDE_DIR})
+target_include_directories(pan PRIVATE ${RADIANCE_COMMON_DIR} ${libtiff_SOURCE_DIR}/libtiff ${LIBJPEG_INCLUDE_DIR} ${LIBJPEG_INCLUDE_DIR2} ${LIBJPEG_INCLUDE_DIR3} ${OPENEXR_INCLUDE_DIR})
 
 # Installation
 install(TARGETS pan
