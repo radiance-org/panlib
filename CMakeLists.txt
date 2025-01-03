@@ -9,11 +9,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 cmake_policy(SET CMP0077 NEW)
 
 
-ExternalProject_Add(libjpeg-turbo SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo
-CMAKE_ARGS
-	-DENABLE_SHARED=FALSE
-	-DENABLE_STATIC=TRUE
-	-DBUILD_TESTING=OFF
+ExternalProject_Add(libjpeg-turbo 
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+    CMAKE_ARGS
+        -DENABLE_SHARED=FALSE
+        -DENABLE_STATIC=TRUE
+        -DBUILD_TESTING=OFF
         -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
 )
 
@@ -23,14 +26,14 @@ ExternalProject_Add(openexr
     INSTALL_COMMAND ""
     CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-	-DBUILD_TESTING=OFF
-	-DOPENEXR_BUILD_BOTH_STATIC_SHARED=ON
-	-DPYILMBASE_ENABLE=OFF
+        -DBUILD_TESTING=OFF
+        -DOPENEXR_BUILD_BOTH_STATIC_SHARED=ON
+        -DPYILMBASE_ENABLE=OFF
 )
 
 ExternalProject_Get_Property(libjpeg-turbo INSTALL_DIR)
 ExternalProject_Get_Property(libjpeg-turbo SOURCE_DIR)
-set(LIBJPEG_INCLUDE_DIR ${INSTALL_DIR}/include ${INSTALL_DIR}/src/libjpeg-turbo-build ${SOURCE_DIR}/src)
+set(LIBJPEG_INCLUDE_DIR ${INSTALL_DIR}/src/libjpeg-turbo-build ${SOURCE_DIR}/src)
 
 ExternalProject_Get_Property(openexr INSTALL_DIR)
 set(OPENEXR_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr)
@@ -45,8 +48,6 @@ ${INSTALL_DIR}/src/openexr-build/IlmBase/config
 
 set(RAD_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/radiance/src/common)
 
-
-message("libjpeg ${LIBJPEG_INCLUDE_DIR}")
 
 # Set source files
 set(SOURCES
