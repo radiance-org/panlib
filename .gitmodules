@@ -1,0 +1,10 @@
+[submodule "external/radiance"]
+	path = external/radiance
+	url = https://github.com/lbnl-eta/radiance
+	branch = master
+[submodule "external/libjpeg-turbo"]
+	path = external/libjpeg-turbo
+	url = https://github.com/libjpeg-turbo/libjpeg-turbo
+[submodule "external/openexr"]
+	path = external/openexr
+	url = https://github.com/mitsuba-renderer/openexr
