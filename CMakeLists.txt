@@ -12,11 +12,12 @@ include(ExternalProject)
 
 # Set global build options
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static libraries" FORCE)
-set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
+# include FindCMath.cmake file for libtiff
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 
+# Get Radiance 
 FetchContent_Declare(
     radiance
     GIT_REPOSITORY https://github.com/lbnl-eta/radiance
@@ -31,8 +32,12 @@ endif()
 
 # Get the path to the common directory
 set(RADIANCE_COMMON_DIR ${radiance_SOURCE_DIR}/src/common)
+if(NOT EXISTS ${RADIANCE_COMMON_DIR})
+    message(FATAL_ERROR "Radiance common directory not found at ${RADIANCE_COMMON_DIR}")
+endif()
+# Done getting Radiance
 
-# OpenEXR
+# Get OpenEXR
 ExternalProject_Add(openexr_external
     GIT_REPOSITORY https://github.com/mitsuba-renderer/openexr
     GIT_TAG snapshot_2
@@ -40,8 +45,11 @@ ExternalProject_Add(openexr_external
         -DBUILD_SHARED_LIBS=OFF
         -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
 	-DBUILD_TESTING=OFF
+	-DOPENEXR_BUILD_BOTH_STATIC_SHARED=ON
 )
+# Done getting OpenEXR
 
+# Get libjpeg-turbo
 ExternalProject_Add(libjpeg
     GIT_REPOSITORY https://github.com/libjpeg-turbo/libjpeg-turbo
     GIT_TAG 3.1.0
@@ -52,9 +60,10 @@ ExternalProject_Add(libjpeg
         -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
 	-DBUILD_TESTING=OFF
 )
+# Done getting libjpeg-turbo
 
 
-
+# Get libtiff
 # Configure libtiff options
 set(BUILD_SHARED_LIBS OFF)
 set(tiff-tools OFF)
@@ -70,13 +79,14 @@ endif()
 
 set(zlib FALSE CACHE BOOL "" FORCE)
 set(pixarlog FALSE CACHE BOOL "" FORCE)
-# set(ZLIB_SUPPORT FALSE CACHE BOOL "Enable Zlib usage" FORCE)
-set(JPEG_SUPPORT OFF CACHE BOOL "Enable JPEG compression" FORCE)
-set(OJPEG_SUPPORT OFF CACHE BOOL "Enable old-style JPEG compression" FORCE)
-set(JBIG_SUPPORT OFF CACHE BOOL "Enable JBIG compression" FORCE)
-set(WEBP_SUPPORT OFF CACHE BOOL "Enable WebP compression" FORCE)
-set(ZSTD_SUPPORT OFF CACHE BOOL "Enable ZSTD compression" FORCE)
-set(DEFLATE_SUPPORT OFF CACHE BOOL "Enable DEFLATE compression" FORCE)
+set(jpeg FALSE CACHE BOOL "Enable JPEG compression" FORCE)
+set(old-jpeg FALSE CACHE BOOL "Enable old-style JPEG compression" FORCE)
+set(jbig FALSE CACHE BOOL "Enable JBIG compression" FORCE)
+set(webp FALSE CACHE BOOL "Enable WebP compression" FORCE)
+set(zstd FALSE CACHE BOOL "Enable ZSTD compression" FORCE)
+set(libdeflate FALSE CACHE BOOL "Enable DEFLATE compression" FORCE)
+set(lzma FALSE CACHE BOOL "Enable lzma" FORCE)
+set(lerc FALSE CACHE BOOL "Enable lerc" FORCE)
 
 # Fetch and configure libtiff
 FetchContent_Declare(
@@ -85,6 +95,7 @@ FetchContent_Declare(
     GIT_TAG v4.7.0
 )
 FetchContent_MakeAvailable(libtiff)
+# Done getting libtiff
 
 # Set up include directories
 ExternalProject_Get_Property(libjpeg INSTALL_DIR)
@@ -97,16 +108,6 @@ set(LIBJPEG_INCLUDE_DIR3 ${SOURCE_DIR}/src)
 ExternalProject_Get_Property(openexr_external INSTALL_DIR)
 set(OPENEXR_INCLUDE_DIR ${INSTALL_DIR}/include/OpenEXR)
 set(OPENEXR_LIBRARY_DIR ${INSTALL_DIR}/lib)
-
-# ExternalProject_Get_Property(libtiff_external INSTALL_DIR)
-set(TIFF_INCLUDE_DIR ${INSTALL_DIR}/include)
-# set(TIFF_LIBRARY_DIR ${INSTALL_DIR}/lib)
-# Verify the directory exists
-
-set(RADIANCE_COMMON_DIR ${radiance_SOURCE_DIR}/src/common)
-if(NOT EXISTS ${RADIANCE_COMMON_DIR})
-    message(FATAL_ERROR "Radiance common directory not found at ${RADIANCE_COMMON_DIR}")
-endif()
 
 
 # Set source files
@@ -150,18 +151,8 @@ set(SOURCES
 
 # Create library
 add_library(pan ${SOURCES})
-
-# Include directories
-target_include_directories(pan
-    PUBLIC
-        ${CMAKE_SOURCE_DIR}/include
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/src
-)
-
+target_include_directories(pan PRIVATE ${CMAKE_SOURCE_DIR}/src ${RADIANCE_COMMON_DIR} ${libtiff_SOURCE_DIR}/libtiff ${LIBJPEG_INCLUDE_DIR} ${LIBJPEG_INCLUDE_DIR2} ${LIBJPEG_INCLUDE_DIR3} ${OPENEXR_INCLUDE_DIR})
 target_link_libraries(pan PRIVATE jpeg-turbo tiff openexr m)
-target_link_directories(pan PRIVATE ${JPEG_TURBO_LIBRARY_DIR} ${OPENEXR_LIBRARY_DIR} ${TIFF_LIBRARY_DIR})
-target_include_directories(pan PRIVATE ${RADIANCE_COMMON_DIR} ${libtiff_SOURCE_DIR}/libtiff ${LIBJPEG_INCLUDE_DIR} ${LIBJPEG_INCLUDE_DIR2} ${LIBJPEG_INCLUDE_DIR3} ${OPENEXR_INCLUDE_DIR})
 
 # Installation
 install(TARGETS pan
