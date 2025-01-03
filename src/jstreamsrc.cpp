@@ -17,6 +17,8 @@
 #include "jinclude.h"
 #include "jstreamsrc.h"
 
+#define SIZEOF(object)	((size_t) sizeof(object))
+
 /* Expanded data source object for stdio input */
 
 typedef struct {
