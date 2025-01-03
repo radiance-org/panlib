@@ -5,23 +5,111 @@ project(panimage VERSION 1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Options for format support
-option(WITH_JPEG "Enable JPEG support" ON)
-option(WITH_TIFF "Enable TIFF support" ON)
-option(WITH_OPENEXR "Enable OpenEXR support" ON)
+cmake_policy(SET CMP0077 NEW)
 
-# Find required packages based on options
-if(WITH_JPEG)
-    find_package(JPEG REQUIRED)
+include(FetchContent)
+include(ExternalProject)
+
+# Set global build options
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static libraries" FORCE)
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+
+
+FetchContent_Declare(
+    radiance
+    GIT_REPOSITORY https://github.com/lbnl-eta/radiance
+    GIT_TAG master
+)
+
+# Populate the content without adding the entire project
+FetchContent_GetProperties(radiance)
+if(NOT radiance_POPULATED)
+    FetchContent_Populate(radiance)
 endif()
 
-if(WITH_TIFF)
-    find_package(TIFF REQUIRED)
+# Get the path to the common directory
+set(RADIANCE_COMMON_DIR ${radiance_SOURCE_DIR}/src/common)
+
+# libjpeg-turbo
+# ExternalProject_Add(libjpeg-turbo_external
+#     GIT_REPOSITORY https://github.com/libjpeg-turbo/libjpeg-turbo
+#     GIT_TAG 3.1.0
+#     CMAKE_ARGS
+#         -DENABLE_SHARED=OFF
+#         -DENABLE_STATIC=ON
+#         -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+# )
+# ExternalProject_Get_Property(libjpeg-turbo_external INSTALL_DIR)
+# set(JPEG_TURBO_INCLUDE_DIR ${INSTALL_DIR}/include)
+# set(JPEG_TURBO_INCLUDE_DIR2 ${INSTALL_DIR}/src/libjpeg-turbo_external-build)
+# set(JPEG_TURBO_LIBRARY_DIR ${INSTALL_DIR}/lib)
+# ExternalProject_Get_Property(libjpeg-turbo_external SOURCE_DIR)
+# set(JPEG_TURBO_INCLUDE_DIR3 ${SOURCE_DIR}/src)
+
+# Set download location for libjpeg
+set(JPEG_SOURCE_DIR external/jpeg-6b)
+# set(JPEG_INSTALL_DIR ${CMAKE_BINARY_DIR}/jpeg-install)
+
+# OpenEXR
+ExternalProject_Add(openexr_external
+    GIT_REPOSITORY https://github.com/mitsuba-renderer/openexr
+    GIT_TAG snapshot_2
+    CMAKE_ARGS
+        -DBUILD_SHARED_LIBS=OFF
+        -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+	-DBUILD_TESTING=OFF
+)
+
+# Configure libtiff options
+set(BUILD_SHARED_LIBS OFF)
+set(tiff-tools OFF)
+set(tiff-tests OFF)
+set(tiff-docs OFF)
+set(tiff-contrib OFF)
+set(tiff-install OFF)
+
+find_library(MATH_LIBRARY m)
+if(MATH_LIBRARY)
+    set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES} ${MATH_LIBRARY}")
 endif()
 
-if(WITH_OPENEXR)
-    find_package(OpenEXR REQUIRED)
+set(zlib FALSE CACHE BOOL "" FORCE)
+set(pixarlog FALSE CACHE BOOL "" FORCE)
+# set(ZLIB_SUPPORT FALSE CACHE BOOL "Enable Zlib usage" FORCE)
+set(JPEG_SUPPORT OFF CACHE BOOL "Enable JPEG compression" FORCE)
+set(OJPEG_SUPPORT OFF CACHE BOOL "Enable old-style JPEG compression" FORCE)
+set(JBIG_SUPPORT OFF CACHE BOOL "Enable JBIG compression" FORCE)
+set(WEBP_SUPPORT OFF CACHE BOOL "Enable WebP compression" FORCE)
+set(ZSTD_SUPPORT OFF CACHE BOOL "Enable ZSTD compression" FORCE)
+set(DEFLATE_SUPPORT OFF CACHE BOOL "Enable DEFLATE compression" FORCE)
+
+# Fetch and configure libtiff
+FetchContent_Declare(
+    libtiff
+    GIT_REPOSITORY https://gitlab.com/libtiff/libtiff.git
+    GIT_TAG v4.7.0
+)
+FetchContent_MakeAvailable(libtiff)
+
+
+# Set up include directories
+
+ExternalProject_Get_Property(openexr_external INSTALL_DIR)
+set(OPENEXR_INCLUDE_DIR ${INSTALL_DIR}/include/OpenEXR)
+set(OPENEXR_LIBRARY_DIR ${INSTALL_DIR}/lib)
+
+# ExternalProject_Get_Property(libtiff_external INSTALL_DIR)
+set(TIFF_INCLUDE_DIR ${INSTALL_DIR}/include)
+# set(TIFF_LIBRARY_DIR ${INSTALL_DIR}/lib)
+# Verify the directory exists
+
+set(RADIANCE_COMMON_DIR ${radiance_SOURCE_DIR}/src/common)
+if(NOT EXISTS ${RADIANCE_COMMON_DIR})
+    message(FATAL_ERROR "Radiance common directory not found at ${RADIANCE_COMMON_DIR}")
 endif()
+
 
 # Set source files
 set(SOURCES
@@ -41,8 +129,6 @@ set(SOURCES
 	src/pdispimg.cpp
 	src/pdraw.cpp
 	src/pfeatures.cpp
-	src/pfeatures_dbg.cpp
-	src/pfeatures_v1.cpp
 	src/phdalign.cpp
 	src/phdflare.cpp
 	src/phdrimg.cpp
@@ -63,30 +149,6 @@ set(SOURCES
 	src/writejpeg.cpp
 )
 
-# Conditionally exclude format-specific sources
-if(NOT WITH_JPEG)
-    list(REMOVE_ITEM SOURCES 
-        src/readjpeg.cpp
-        src/writejpeg.cpp
-        src/jstreamsrc.cpp
-        src/jsfidctflt.cpp
-    )
-endif()
-
-if(NOT WITH_TIFF)
-    list(REMOVE_ITEM SOURCES 
-        src/readtiff.cpp
-        src/writetiff.cpp
-        src/tiffin.cpp
-    )
-endif()
-
-if(NOT WITH_OPENEXR)
-    list(REMOVE_ITEM SOURCES 
-        src/readexr.cpp
-        src/writeexr.cpp
-    )
-endif()
 
 # Create library
 add_library(pan ${SOURCES})
@@ -99,21 +161,9 @@ target_include_directories(pan
         ${CMAKE_SOURCE_DIR}/src
 )
 
-# Set compile definitions and link libraries based on options
-if(WITH_JPEG)
-    target_compile_definitions(pan PRIVATE HAVE_JPEG_SUPPORT)
-    target_link_libraries(pan PRIVATE JPEG::JPEG)
-endif()
-
-if(WITH_TIFF)
-    target_compile_definitions(pan PRIVATE HAVE_TIFF_SUPPORT)
-    target_link_libraries(pan PRIVATE TIFF::TIFF)
-endif()
-
-if(WITH_OPENEXR)
-    target_compile_definitions(pan PRIVATE HAVE_OPENEXR_SUPPORT)
-    target_link_libraries(pan PRIVATE OpenEXR::OpenEXR)
-endif()
+target_link_libraries(pan PRIVATE jpeg-turbo tiff openexr m)
+target_link_directories(pan PRIVATE ${JPEG_TURBO_LIBRARY_DIR} ${OPENEXR_LIBRARY_DIR} ${TIFF_LIBRARY_DIR})
+target_include_directories(pan PRIVATE ${RADIANCE_COMMON_DIR} ${libtiff_SOURCE_DIR}/libtiff ${JPEG_SOURCE_DIR} ${OPENEXR_INCLUDE_DIR})
 
 # Installation
 install(TARGETS pan
