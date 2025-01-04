@@ -51,42 +51,78 @@ set(RAD_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/radiance/src/common)
 
 # Set source files
 set(SOURCES
-	src/cache.cpp
-	src/dbaccess.cpp
-	src/dbheader.cpp
-	src/dbhlink.cpp
-	src/dbrecord.cpp
-	src/exif.cpp
-	src/exifthumb.cpp
-	src/jsfidctflt.cpp
-	src/jstreamsrc.cpp
-	src/panimage.cpp
-	src/panwriter.cpp
-	src/pdbase.cpp
-	src/pdequant.cpp
-	src/pdispimg.cpp
-	src/pdraw.cpp
-	src/pfeatures.cpp
-	src/phdalign.cpp
-	src/phdflare.cpp
-	src/phdrimg.cpp
-	src/photophile.cpp
-	src/picache.cpp
-	src/ppano.cpp
-	src/pstrings.cpp
-	src/pthumb.cpp
-	src/readexr.cpp
-	src/readjpeg.cpp
-	src/readtiff.cpp
-	src/textform.cpp
-	src/textmap.cpp
-	src/thumbicon.cpp
-	src/tiffin.cpp
-	src/win_platform.cpp
-	src/writeexr.cpp
-	src/writejpeg.cpp
+src/cvicon.c
+src/dmessage.c
+src/jhcomp.c
+src/jhdecomp.c
+src/jhresamp.c
+src/jhtonemap2.c
+src/jhtonemap.c
+src/memobject.c
+src/pblendpan2.c
+src/pblendpano.c
+src/picolor.c
+src/pimage.c
+src/pireader.c
+src/piresamp.c
+src/readbmp.c
+src/readrad.c
+src/rmdirectory.c
+src/system.c
+src/tiffmsg.c
+src/writerad.c
+src/writetiff.c
+src/cache.cpp
+src/dbaccess.cpp
+src/dbheader.cpp
+src/dbhlink.cpp
+src/dbrecord.cpp
+src/exif.cpp
+src/jsfidctflt.cpp
+src/jstreamsrc.cpp
+src/panimage.cpp
+src/panwriter.cpp
+src/pdbase.cpp
+src/pdispimg.cpp
+src/phdalign.cpp
+src/phdflare.cpp
+src/phdrimg.cpp
+src/photophile.cpp
+src/picache.cpp
+src/ppano.cpp
+src/pstrings.cpp
+src/pthumb.cpp
+src/readexr.cpp
+src/readjpeg.cpp
+src/readtiff.cpp
+src/textform.cpp
+src/thumbicon.cpp
+src/tiffin.cpp
+src/writeexr.cpp
+src/writejpeg.cpp
+src/piwarp.c
+src/pisum.c
+src/pidequant.c
+src/pbilat.c
+src/phisto.c
+src/phistomatch.c
+src/pconvolve.c
+src/exifthumb.cpp
+src/pdilate.c
+src/pfeatures.cpp
+src/radheader.c
+src/readnrm.c
+src/readdpt.c
+src/writenrm.c
+src/writedpt.c
+src/pdequant.cpp
+src/pdraw.c
+src/pmipmap.c
+src/readmtx.c
+src/writemtx.c
+src/textmap.cpp
+src/phistadj.c
 )
-
 
 # Create library
 add_library(pan ${SOURCES})
