@@ -57,7 +57,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src/jversion.h
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src/jconfig.h.in jconfig.h)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src/jconfigint.h.in jconfigint.h)
 
-set(LIBJPEG_INCLUDE_DIR ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src)
+set(LIBJPEG_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src)
 
 set(RAD_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/radiance/src/common)
 
