@@ -51,7 +51,6 @@ set(RAD_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/radiance/src/common)
 
 # Set source files
 set(SOURCES
-src/cvicon.c
 src/dmessage.c
 src/jhcomp.c
 src/jhdecomp.c
