@@ -58,7 +58,6 @@ src/jhresamp.c
 src/jhtonemap2.c
 src/jhtonemap.c
 src/memobject.c
-src/pblendpan2.c
 src/pblendpano.c
 src/picolor.c
 src/pimage.c
