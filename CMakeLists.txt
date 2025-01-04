@@ -9,17 +9,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 cmake_policy(SET CMP0077 NEW)
 
 
-ExternalProject_Add(libjpeg-turbo 
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-    CMAKE_ARGS
-        -DENABLE_SHARED=FALSE
-        -DENABLE_STATIC=TRUE
-        -DBUILD_TESTING=OFF
-        -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-)
-
 ExternalProject_Add(openexr
     SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr
     BUILD_COMMAND ""
@@ -31,11 +20,9 @@ ExternalProject_Add(openexr
         -DPYILMBASE_ENABLE=OFF
 )
 
-ExternalProject_Get_Property(libjpeg-turbo INSTALL_DIR)
-ExternalProject_Get_Property(libjpeg-turbo SOURCE_DIR)
-set(LIBJPEG_INCLUDE_DIR ${INSTALL_DIR}/src/libjpeg-turbo-build ${SOURCE_DIR}/src)
 
 ExternalProject_Get_Property(openexr INSTALL_DIR)
+
 set(OPENEXR_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr)
 set(OPENEXR_INCLUDE_DIR 
 ${OPENEXR_SOURCE_DIR}/OpenEXR/IlmImf 
@@ -45,6 +32,32 @@ ${OPENEXR_SOURCE_DIR}/IlmBase/Half
 ${INSTALL_DIR}/src/openexr-build/OpenEXR/config 
 ${INSTALL_DIR}/src/openexr-build/IlmBase/config
 )
+
+if(WITH_JPEG8)
+  set(JPEG_LIB_VERSION 80)
+elseif(WITH_JPEG7)
+  set(JPEG_LIB_VERSION 70)
+else()
+  set(JPEG_LIB_VERSION 62)
+endif()
+math(EXPR JPEG_LIB_VERSION_DIV10 "${JPEG_LIB_VERSION} / 10")
+math(EXPR JPEG_LIB_VERSION_MOD10 "${JPEG_LIB_VERSION} % 10")
+if(JPEG_LIB_VERSION STREQUAL "62")
+  set(DEFAULT_SO_MAJOR_VERSION ${JPEG_LIB_VERSION})
+else()
+  set(DEFAULT_SO_MAJOR_VERSION ${JPEG_LIB_VERSION_DIV10})
+endif()
+if(JPEG_LIB_VERSION STREQUAL "80")
+  set(DEFAULT_SO_MINOR_VERSION 2)
+else()
+  set(DEFAULT_SO_MINOR_VERSION 0)
+endif()
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src/jversion.h.in jversion.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src/jconfig.h.in jconfig.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src/jconfigint.h.in jconfigint.h)
+
+set(LIBJPEG_INCLUDE_DIR ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src)
 
 set(RAD_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/radiance/src/common)
 
