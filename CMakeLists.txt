@@ -116,7 +116,7 @@ src/readdpt.c
 src/writenrm.c
 src/writedpt.c
 src/pdequant.cpp
-src/pdraw.c
+src/pdraw.cpp
 src/pmipmap.c
 src/readmtx.c
 src/writemtx.c
@@ -125,5 +125,5 @@ src/phistadj.c
 )
 
 # Create library
-add_library(pan ${SOURCES})
+add_library(pan STATIC ${SOURCES})
 target_include_directories(pan PRIVATE ${CMAKE_SOURCE_DIR}/src ${RAD_COMMON_DIR} ${LIBJPEG_INCLUDE_DIR} ${OPENEXR_INCLUDE_DIR})
