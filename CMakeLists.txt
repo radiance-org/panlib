@@ -62,6 +62,15 @@ CMAKE_ARGS
 
 ExternalProject_Get_Property(libjpeg-turbo INSTALL_DIR)
 set(LIBJPEG_INCLUDE_DIR ${INSTALL_DIR}/src/libjpeg-turbo-build ${LIBJPEG_SOURCE_DIR}/src)
+# Create an internal imported target for jpeg
+add_library(jpeg STATIC IMPORTED)
+add_dependencies(jpeg libjpeg-turbo)
+
+set(LIBJPEG_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo)
+set_target_properties(jpeg PROPERTIES
+    IMPORTED_LOCATION ${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}jpeg${CMAKE_STATIC_LIBRARY_SUFFIX}
+    INTERFACE_INCLUDE_DIRECTORIES ${INSTALL_DIR}/src/libjpeg-turbo-build
+)
 
 set(RAD_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/radiance/src/common)
 
@@ -137,6 +146,8 @@ src/writemtx.c
 src/textmap.cpp
 src/phistadj.c
 )
+
+
 
 # Create library
 add_library(pan STATIC ${SOURCES})
