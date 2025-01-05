@@ -9,29 +9,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 cmake_policy(SET CMP0077 NEW)
 
 
-ExternalProject_Add(openexr
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-    CMAKE_ARGS
-        -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-        -DBUILD_TESTING=OFF
-        -DOPENEXR_BUILD_BOTH_STATIC_SHARED=ON
-        -DPYILMBASE_ENABLE=OFF
-)
+set(IMATH_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/Imath)
+add_subdirectory(${IMATH_DIR})
+set(IMATH_INCLUDE_DIR ${IMATH_DIR}/src/Imath ${CMAKE_CURRENT_BINARY_DIR}/external/Imath/config)
 
-
-ExternalProject_Get_Property(openexr INSTALL_DIR)
-
-set(OPENEXR_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr)
-set(OPENEXR_INCLUDE_DIR 
-${OPENEXR_SOURCE_DIR}/OpenEXR/IlmImf 
-${OPENEXR_SOURCE_DIR}/IlmBase/Imath 
-${OPENEXR_SOURCE_DIR}/IlmBase/Iex 
-${OPENEXR_SOURCE_DIR}/IlmBase/Half
-${INSTALL_DIR}/src/openexr-build/OpenEXR/config 
-${INSTALL_DIR}/src/openexr-build/IlmBase/config
-)
+set(OPENEXR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr)
+set(OPENEXR_IS_SUBPROJECT TRUE)
+set(OPENEXR_INSTALL ON)
+set(OPENEXR_INSTALL_TOOLS OFF)
+set(OPENEXR_BUILD_LIBS FALSE)
+set(OPENEXR_BUILD_EXAMPLES FALSE)
+set(OPENEXR_BUILD_TOOLS FALSE)
+add_subdirectory(${OPENEXR_DIR})
+set(OPENEXR_SOURCE_DIR ${OPENEXR_DIR}/src/lib)
+set(OPENEXR_INCLUDE_DIR ${OPENEXR_SOURCE_DIR}/OpenEXR ${OPENEXR_SOURCE_DIR}/Iex ${CMAKE_CURRENT_BINARY_DIR}/external/openexr/cmake)
 
 if(WITH_JPEG8)
   set(JPEG_LIB_VERSION 80)
@@ -53,11 +44,11 @@ else()
   set(DEFAULT_SO_MINOR_VERSION 0)
 endif()
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src/jversion.h.in jversion.h)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src/jconfig.h.in jconfig.h)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src/jconfigint.h.in jconfigint.h)
+set(JPEG_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src)
+configure_file(${JPEG_SOURCE_DIR}/jversion.h.in jversion.h)
+configure_file(${JPEG_SOURCE_DIR}/jconfig.h.in jconfig.h)
+configure_file(${JPEG_SOURCE_DIR}/jconfigint.h.in jconfigint.h)
 
-set(LIBJPEG_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src)
 
 set(RAD_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/radiance/src/common)
 
@@ -137,4 +128,4 @@ src/phistadj.c
 
 # Create library
 add_library(pan STATIC ${SOURCES})
-target_include_directories(pan PRIVATE ${CMAKE_SOURCE_DIR}/src ${RAD_COMMON_DIR} ${LIBJPEG_INCLUDE_DIR} ${OPENEXR_INCLUDE_DIR})
+target_include_directories(pan PRIVATE ${CMAKE_SOURCE_DIR}/src ${RAD_COMMON_DIR} ${JPEG_SOURCE_DIR} ${OPENEXR_INCLUDE_DIR} ${IMATH_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
