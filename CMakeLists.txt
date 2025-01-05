@@ -64,7 +64,7 @@ ExternalProject_Get_Property(libjpeg-turbo INSTALL_DIR)
 set(LIBJPEG_INCLUDE_DIR ${INSTALL_DIR}/src/libjpeg-turbo-build ${LIBJPEG_SOURCE_DIR}/src)
 # Create an internal imported target for jpeg
 add_library(jpeg STATIC IMPORTED)
-add_dependencies(jpeg libjpeg-turbo)
+# add_dependencies(jpeg libjpeg-turbo)
 
 set(LIBJPEG_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo)
 set_target_properties(jpeg PROPERTIES
