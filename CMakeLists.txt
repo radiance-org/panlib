@@ -1,15 +1,24 @@
 cmake_minimum_required(VERSION 3.10)
 project(panimage VERSION 1.0 LANGUAGES C CXX)
 
-include(ExternalProject)
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 cmake_policy(SET CMP0077 NEW)
 
+# Build type
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+include(ExternalProject)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(rtrad)
 
 set(IMATH_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/Imath)
+set(IMATH_IS_SUBPROJECT TRUE)
 add_subdirectory(${IMATH_DIR})
 set(IMATH_INCLUDE_DIR ${IMATH_DIR}/src/Imath ${CMAKE_CURRENT_BINARY_DIR}/external/Imath/config)
 
@@ -17,41 +26,44 @@ set(OPENEXR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr)
 set(OPENEXR_IS_SUBPROJECT TRUE)
 set(OPENEXR_INSTALL ON)
 set(OPENEXR_INSTALL_TOOLS OFF)
-set(OPENEXR_BUILD_LIBS FALSE)
+set(OPENEXR_BUILD_LIBS TRUE)
 set(OPENEXR_BUILD_EXAMPLES FALSE)
 set(OPENEXR_BUILD_TOOLS FALSE)
 add_subdirectory(${OPENEXR_DIR})
 set(OPENEXR_SOURCE_DIR ${OPENEXR_DIR}/src/lib)
 set(OPENEXR_INCLUDE_DIR ${OPENEXR_SOURCE_DIR}/OpenEXR ${OPENEXR_SOURCE_DIR}/Iex ${CMAKE_CURRENT_BINARY_DIR}/external/openexr/cmake)
 
-if(WITH_JPEG8)
-  set(JPEG_LIB_VERSION 80)
-elseif(WITH_JPEG7)
-  set(JPEG_LIB_VERSION 70)
-else()
-  set(JPEG_LIB_VERSION 62)
-endif()
-math(EXPR JPEG_LIB_VERSION_DIV10 "${JPEG_LIB_VERSION} / 10")
-math(EXPR JPEG_LIB_VERSION_MOD10 "${JPEG_LIB_VERSION} % 10")
-if(JPEG_LIB_VERSION STREQUAL "62")
-  set(DEFAULT_SO_MAJOR_VERSION ${JPEG_LIB_VERSION})
-else()
-  set(DEFAULT_SO_MAJOR_VERSION ${JPEG_LIB_VERSION_DIV10})
-endif()
-if(JPEG_LIB_VERSION STREQUAL "80")
-  set(DEFAULT_SO_MINOR_VERSION 2)
-else()
-  set(DEFAULT_SO_MINOR_VERSION 0)
-endif()
 
-set(JPEG_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo/src)
-configure_file(${JPEG_SOURCE_DIR}/jversion.h.in jversion.h)
-configure_file(${JPEG_SOURCE_DIR}/jconfig.h.in jconfig.h)
-configure_file(${JPEG_SOURCE_DIR}/jconfigint.h.in jconfigint.h)
+set(tiff-tools OFF)
+set(tiff-tests OFF)
+set(tiff-docs OFF)
+set(tiff-contrib OFF)
+set(BUILD_SHARED_LIBS OFF)
+set(zlib OFF)
+set(jpeg OFF)
+set(pixarlog OFF)
+set(libdeflate OFF)
+set(lerc OFF)
+set(lzma OFF)
+set(webp OFF)
+set(zstd OFF)
+set(CMAKE_CROSSCOMPILING OFF)
+add_subdirectory(external/libtiff)
 
+
+set(LIBJPEG_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo)
+ExternalProject_Add(libjpeg-turbo
+SOURCE_DIR ${LIBJPEG_SOURCE_DIR}
+CMAKE_ARGS
+	-DENABLE_STATIC=TRUE
+	-DENABLE_SHARED=FALSE
+        -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+)
+
+ExternalProject_Get_Property(libjpeg-turbo INSTALL_DIR)
+set(LIBJPEG_INCLUDE_DIR ${INSTALL_DIR}/src/libjpeg-turbo-build ${LIBJPEG_SOURCE_DIR}/src)
 
 set(RAD_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/radiance/src/common)
-
 
 # Set source files
 set(SOURCES
@@ -128,4 +140,5 @@ src/phistadj.c
 
 # Create library
 add_library(pan STATIC ${SOURCES})
-target_include_directories(pan PRIVATE ${CMAKE_SOURCE_DIR}/src ${RAD_COMMON_DIR} ${JPEG_SOURCE_DIR} ${OPENEXR_INCLUDE_DIR} ${IMATH_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(pan PRIVATE cpprad rtrad OpenEXR tiff jpeg)
+target_include_directories(pan PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${RAD_COMMON_DIR} ${LIBJPEG_INCLUDE_DIR} ${OPENEXR_INCLUDE_DIR} ${IMATH_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})

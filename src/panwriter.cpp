@@ -17,19 +17,13 @@ bool PloadStandardWriters()
 {
     bool ok = true;
     
-    #ifdef HAVE_JPEG_SUPPORT
     ok &= PanImage::AddImageWriter(&IWInterfaceJPEG);
-    #endif
 
-    #ifdef HAVE_TIFF_SUPPORT
     ok &= PanImage::AddImageWriter(&IWInterfaceTIFF);
-    #endif
 
     ok &= PanImage::AddImageWriter(&IWInterfaceRad);
 
-    #ifdef HAVE_OPENEXR_SUPPORT
     ok &= PanImage::AddImageWriter(&IWInterfaceEXR);
-    #endif
     
     return ok;
 }
