@@ -115,7 +115,10 @@ endif()
 
 add_library(rtrad STATIC ${rtrad_SOURCES})
 
-target_link_libraries(rtrad m)
+find_library(MATH_LIBRARY m)
+if(MATH_LIBRARY)
+	target_link_libraries(rtrad m)
+endif()
 
 if(WIN32)
   target_link_libraries(rtrad ws2_32)
