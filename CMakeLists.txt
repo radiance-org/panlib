@@ -16,6 +16,7 @@ include(ExternalProject)
 
 if(MSVC)
     add_definitions(-D_HAS_STD_BYTE=0)
+    add_definitions(-DNOMINMAX)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
