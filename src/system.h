@@ -15,45 +15,52 @@
 				/* Windows */
 #if defined(_WIN32) || defined(_WIN64)
 
-#ifdef _MSC_VER
-#include <BaseTsd.h>
-typedef SSIZE_T	ssize_t;
-#define HAVE_BOOLEAN
-#else
-#define isnan(x)	_isnan(x)
-#define isinf(x)	(!_finite(x))
-#ifndef snprintf
-#define snprintf	_snprintf
-#endif
-#endif
-#include <io.h>
-#include <time.h>
-#include <Winsock2.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <float.h>
-#define _Ios_Fmtflags	ios_base::fmtflags
-#define DIRSEP		'/'
-#define DIRSEP2		'\\'
-#define IS_DIRSEP(c)	(((c)==DIRSEP) | ((c)==DIRSEP2))
-#ifndef SET_DEFAULT_BINARY
-#define SET_DEFAULT_BINARY()	(_fmode = _O_BINARY)
-#define SET_FILE_BINARY(fp)	_setmode(fileno(fp),_O_BINARY)
-#define SET_FD_BINARY(fd)	_setmode(fd,_O_BINARY)
-#endif
-#ifndef snprintf
-#define snprintf	_snprintf
-#endif
-#ifndef strcasecmp
-#define strcasecmp	_stricmp
-#define strncasecmp	_strnicmp
-#endif
-#ifndef gethostname
-#define	gethostname	unix_gethostname
-#endif
-#ifndef kill
-#define	kill		unix_kill
-#endif
+	#ifdef _MSC_VER
+		#include <BaseTsd.h>
+		typedef SSIZE_T	ssize_t;
+		#define HAVE_BOOLEAN
+	#else
+		#define isnan(x)	_isnan(x)
+		#define isinf(x)	(!_finite(x))
+		#ifndef snprintf
+				#define snprintf	_snprintf
+		#endif
+	#endif
+
+	#include <io.h>
+	#include <time.h>
+	#include <Winsock2.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
+	#include <float.h>
+
+	#define _Ios_Fmtflags	ios_base::fmtflags
+	#define DIRSEP		'/'
+	#define DIRSEP2		'\\'
+	#define IS_DIRSEP(c)	(((c)==DIRSEP) | ((c)==DIRSEP2))
+
+	#ifndef SET_DEFAULT_BINARY
+		#define SET_DEFAULT_BINARY()	(_fmode = _O_BINARY)
+		#define SET_FILE_BINARY(fp)	_setmode(fileno(fp),_O_BINARY)
+		#define SET_FD_BINARY(fd)	_setmode(fd,_O_BINARY)
+	#endif
+
+	/*#ifndef snprintf*/
+	/*	#define snprintf	_snprintf*/
+	/*#endif*/
+
+	#ifndef strcasecmp
+		#define strcasecmp	_stricmp
+		#define strncasecmp	_strnicmp
+	#endif
+
+	#ifndef gethostname
+		#define	gethostname	unix_gethostname
+	#endif
+
+	#ifndef kill
+		#define	kill		unix_kill
+	#endif
 
 #endif
 				/* Unix */

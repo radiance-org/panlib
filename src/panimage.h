@@ -14,6 +14,7 @@
 
 #include "pimage.h"
 #include "imgwriter.h"
+#include "system.h"
 
 /** @brief Wrapper class for Pancine image type
  *

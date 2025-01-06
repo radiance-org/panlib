@@ -19,6 +19,12 @@
 #define false	0
 #endif
 
+#ifdef _WIN32
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+
+
 /* check for and report a tone-mapping error */
 static int
 checkTMOerr(int erc, int lineno)
