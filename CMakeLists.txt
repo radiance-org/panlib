@@ -71,15 +71,23 @@ ExternalProject_Get_Property(libjpeg-turbo BINARY_DIR INSTALL_DIR)
 add_library(jpeg STATIC IMPORTED GLOBAL)
 add_dependencies(jpeg libjpeg-turbo)
 
+if(WIN32)
+    set(JPEG_LIBRARY_PATH "${BINARY_DIR}/${CMAKE_BUILD_TYPE}/jpeg-static${CMAKE_STATIC_LIBRARY_SUFFIX}")
+else()
+    set(JPEG_LIBRARY_PATH "${BINARY_DIR}/jpeg-static${CMAKE_STATIC_LIBRARY_SUFFIX}")
+endif()
+
 # Set the proper path for the built library
 set_target_properties(jpeg PROPERTIES
-    IMPORTED_LOCATION "${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}jpeg${CMAKE_STATIC_LIBRARY_SUFFIX}"
+    IMPORTED_LOCATION "${JPEG_LIBRARY_PATH}"
     INTERFACE_INCLUDE_DIRECTORIES "${BINARY_DIR};${LIBJPEG_SOURCE_DIR}"
 )
 
 # Make sure the directories exist
 file(MAKE_DIRECTORY "${BINARY_DIR}")
 file(MAKE_DIRECTORY "${INSTALL_DIR}")
+message("bdir ${BINARY_DIR}")
+message("ldir ${INSTALL_DIR}")
 
 set(RAD_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/radiance/src/common)
 
