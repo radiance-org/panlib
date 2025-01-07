@@ -8,9 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 cmake_policy(SET CMP0077 NEW)
 
 # Build type
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
-endif()
+set(CMAKE_BUILD_TYPE Release)
 
 include(ExternalProject)
 
@@ -63,20 +61,25 @@ CMAKE_ARGS
 	-DENABLE_STATIC=TRUE
 	-DENABLE_SHARED=FALSE
         -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+BUILD_BYPRODUCTS
+        <BINARY_DIR>/${CMAKE_STATIC_LIBRARY_PREFIX}jpeg${CMAKE_STATIC_LIBRARY_SUFFIX}
 )
 
-ExternalProject_Get_Property(libjpeg-turbo INSTALL_DIR)
-set(LIBJPEG_INCLUDE_DIR ${INSTALL_DIR}/src/libjpeg-turbo-build ${LIBJPEG_SOURCE_DIR}/src)
+ExternalProject_Get_Property(libjpeg-turbo BINARY_DIR INSTALL_DIR)
 
-# Create an internal imported target for jpeg otherwise it won't get build upstream
-add_library(jpeg STATIC IMPORTED)
+# Create imported library target
+add_library(jpeg STATIC IMPORTED GLOBAL)
 add_dependencies(jpeg libjpeg-turbo)
 
-set(LIBJPEG_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo)
+# Set the proper path for the built library
 set_target_properties(jpeg PROPERTIES
-    IMPORTED_LOCATION ${INSTALL_DIR}/src/libjpeg-turbo-build/${CMAKE_STATIC_LIBRARY_PREFIX}jpeg${CMAKE_STATIC_LIBRARY_SUFFIX}
-    INTERFACE_INCLUDE_DIRECTORIES ${INSTALL_DIR}/src/libjpeg-turbo-build
+    IMPORTED_LOCATION "${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}jpeg${CMAKE_STATIC_LIBRARY_SUFFIX}"
+    INTERFACE_INCLUDE_DIRECTORIES "${BINARY_DIR};${LIBJPEG_SOURCE_DIR}"
 )
+
+# Make sure the directories exist
+file(MAKE_DIRECTORY "${BINARY_DIR}")
+file(MAKE_DIRECTORY "${INSTALL_DIR}")
 
 set(RAD_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/radiance/src/common)
 
@@ -157,4 +160,4 @@ src/phistadj.c
 # Create library
 add_library(pan STATIC ${SOURCES})
 target_link_libraries(pan PRIVATE cpprad rtrad OpenEXR tiff jpeg)
-target_include_directories(pan PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${RAD_COMMON_DIR} ${LIBJPEG_INCLUDE_DIR} ${OPENEXR_INCLUDE_DIR} ${IMATH_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(pan PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${RAD_COMMON_DIR} ${LIBJPEG_SOURCE_DIR}/src ${OPENEXR_INCLUDE_DIR} ${IMATH_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
