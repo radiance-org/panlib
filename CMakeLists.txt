@@ -180,5 +180,6 @@ src/phistadj.c
 
 # Create library
 add_library(pan STATIC ${SOURCES})
+add_dependencies(pan libjpeg-turbo)
 target_link_libraries(pan PRIVATE cpprad rtrad OpenEXR tiff jpeg)
 target_include_directories(pan PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${RAD_COMMON_DIR} ${LIBJPEG_INCLUDE_DIR} ${LIBJPEG_SOURCE_DIR}/src ${OPENEXR_INCLUDE_DIR} ${IMATH_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
