@@ -65,39 +65,42 @@ set(zstd OFF CACHE BOOL "" FORCE)
 set(CMAKE_CROSSCOMPILING OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/libtiff)
 
-
 set(LIBJPEG_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/libjpeg-turbo)
-ExternalProject_Add(libjpeg-turbo
-SOURCE_DIR ${LIBJPEG_SOURCE_DIR}
-CMAKE_ARGS
-	-DENABLE_STATIC=TRUE
-	-DENABLE_SHARED=FALSE
-        -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-BUILD_BYPRODUCTS
-        <BINARY_DIR>/${CMAKE_STATIC_LIBRARY_PREFIX}jpeg${CMAKE_STATIC_LIBRARY_SUFFIX}
-)
+set(LIBJPEG_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/libjpeg-turbo-build)
+set(LIBJPEG_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/libjpeg-turbo-install)
 
-ExternalProject_Get_Property(libjpeg-turbo BINARY_DIR INSTALL_DIR)
-
-# Create imported library target
-add_library(jpeg STATIC IMPORTED GLOBAL)
-add_dependencies(jpeg libjpeg-turbo)
-
+# Set the correct library name based on platform
 if(WIN32)
-    set(JPEG_LIBRARY_PATH "${BINARY_DIR}/${CMAKE_BUILD_TYPE}/jpeg-static${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    set(JPEG_LIBRARY_NAME "jpeg-static")
+    set(lib_name "lib")
 else()
-    set(JPEG_LIBRARY_PATH "${BINARY_DIR}/jpeg-static${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    set(JPEG_LIBRARY_NAME "jpeg")
+    set(lib_name "lib64")
 endif()
 
-# Set the proper path for the built library
-set_target_properties(jpeg PROPERTIES
-    IMPORTED_LOCATION "${JPEG_LIBRARY_PATH}"
-    INTERFACE_INCLUDE_DIRECTORIES "${BINARY_DIR};${LIBJPEG_SOURCE_DIR}"
+ExternalProject_Add(libjpeg-turbo
+    SOURCE_DIR ${LIBJPEG_SOURCE_DIR}
+    BINARY_DIR ${LIBJPEG_BINARY_DIR}
+    INSTALL_DIR ${LIBJPEG_INSTALL_DIR}
+    CMAKE_ARGS
+        -DENABLE_STATIC=ON
+        -DENABLE_SHARED=OFF
+        -DCMAKE_INSTALL_PREFIX=${LIBJPEG_INSTALL_DIR}
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 )
 
-# Make sure the directories exist
-file(MAKE_DIRECTORY "${BINARY_DIR}")
-file(MAKE_DIRECTORY "${INSTALL_DIR}")
+# Create imported target for libjpeg
+add_library(jpeg STATIC IMPORTED GLOBAL)
+# We need to delay setting the properties until after the build
+file(MAKE_DIRECTORY ${LIBJPEG_INSTALL_DIR}/include)  # Create include directory
+
+ExternalProject_Get_Property(libjpeg-turbo install_dir)
+set_target_properties(jpeg PROPERTIES
+    IMPORTED_LOCATION_RELEASE ${install_dir}/${lib_name}/${CMAKE_STATIC_LIBRARY_PREFIX}${JPEG_LIBRARY_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    IMPORTED_LOCATION ${install_dir}/${lib_name}/${CMAKE_STATIC_LIBRARY_PREFIX}${JPEG_LIBRARY_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    INTERFACE_INCLUDE_DIRECTORIES ${install_dir}/include
+)
+add_dependencies(jpeg libjpeg-turbo)
 
 
 set(LIBJPEG_INCLUDE_DIR ${BINARY_DIR})
@@ -182,4 +185,4 @@ src/phistadj.c
 add_library(pan STATIC ${SOURCES})
 add_dependencies(pan libjpeg-turbo)
 target_link_libraries(pan PRIVATE cpprad rtrad OpenEXR tiff jpeg)
-target_include_directories(pan PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${RAD_COMMON_DIR} ${LIBJPEG_INCLUDE_DIR} ${LIBJPEG_SOURCE_DIR}/src ${OPENEXR_INCLUDE_DIR} ${IMATH_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(pan PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${RAD_COMMON_DIR} ${LIBJPEG_INCLUDE_DIR} ${LIBJPEG_SOURCE_DIR}/src ${LIBJPEG_BINARY_DIR} ${OPENEXR_INCLUDE_DIR} ${IMATH_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
