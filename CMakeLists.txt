@@ -5,6 +5,7 @@ project(panimage VERSION 1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
 cmake_policy(SET CMP0077 NEW)
 
 # Build type
@@ -13,8 +14,19 @@ set(CMAKE_BUILD_TYPE Release)
 include(ExternalProject)
 
 if(MSVC)
+    # add_definitions(/MP)
     add_definitions(-D_HAS_STD_BYTE=0)
     add_definitions(-DNOMINMAX)
+    add_compile_options(/wd"4244" /wd"4305")
+endif()
+if(WIN32 AND "${CMAKE_C_COMPILER_ID}" MATCHES "^(Intel)$")
+  set(_INTEL_WINDOWS 1)
+endif()
+if(MSVC OR _INTEL_WINDOWS)
+  add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
+endif()
+if(WIN32)
+  add_definitions(-DEZXML_NOMMAP -Dfseeko=fseek -Dstrcasecmp=_stricmp)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -86,8 +98,9 @@ set_target_properties(jpeg PROPERTIES
 # Make sure the directories exist
 file(MAKE_DIRECTORY "${BINARY_DIR}")
 file(MAKE_DIRECTORY "${INSTALL_DIR}")
-message("bdir ${BINARY_DIR}")
-message("ldir ${INSTALL_DIR}")
+
+
+set(LIBJPEG_INCLUDE_DIR ${BINARY_DIR})
 
 set(RAD_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/radiance/src/common)
 
@@ -168,4 +181,4 @@ src/phistadj.c
 # Create library
 add_library(pan STATIC ${SOURCES})
 target_link_libraries(pan PRIVATE cpprad rtrad OpenEXR tiff jpeg)
-target_include_directories(pan PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${RAD_COMMON_DIR} ${LIBJPEG_SOURCE_DIR}/src ${OPENEXR_INCLUDE_DIR} ${IMATH_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(pan PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${RAD_COMMON_DIR} ${LIBJPEG_INCLUDE_DIR} ${LIBJPEG_SOURCE_DIR}/src ${OPENEXR_INCLUDE_DIR} ${IMATH_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
