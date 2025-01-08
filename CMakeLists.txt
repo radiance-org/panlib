@@ -72,10 +72,14 @@ set(LIBJPEG_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/libjpeg-turbo-install)
 # Set the correct library name based on platform
 if(WIN32)
     set(JPEG_LIBRARY_NAME "jpeg-static")
-    set(lib_name "lib")
+    set(LIB_SUFFIX "")
 else()
     set(JPEG_LIBRARY_NAME "jpeg")
-    set(lib_name "lib64")
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND EXISTS "/etc/redhat-release")
+        set(LIB_SUFFIX "64")
+    else()
+        set(LIB_SUFFIX "")
+    endif()
 endif()
 
 ExternalProject_Add(libjpeg-turbo
@@ -96,8 +100,8 @@ file(MAKE_DIRECTORY ${LIBJPEG_INSTALL_DIR}/include)  # Create include directory
 
 ExternalProject_Get_Property(libjpeg-turbo install_dir)
 set_target_properties(jpeg PROPERTIES
-    IMPORTED_LOCATION_RELEASE ${install_dir}/${lib_name}/${CMAKE_STATIC_LIBRARY_PREFIX}${JPEG_LIBRARY_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
-    IMPORTED_LOCATION ${install_dir}/${lib_name}/${CMAKE_STATIC_LIBRARY_PREFIX}${JPEG_LIBRARY_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    IMPORTED_LOCATION_RELEASE ${install_dir}/lib${LIB_SUFFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}${JPEG_LIBRARY_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
+    IMPORTED_LOCATION ${install_dir}/lib${LIB_SUFFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}${JPEG_LIBRARY_NAME}${CMAKE_STATIC_LIBRARY_SUFFIX}
     INTERFACE_INCLUDE_DIRECTORIES ${install_dir}/include
 )
 add_dependencies(jpeg libjpeg-turbo)
