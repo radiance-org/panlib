@@ -49,6 +49,7 @@
 	/*	#define snprintf	_snprintf*/
 	/*#endif*/
 
+	#define strncasecmp	_strnicmp
 	#ifndef strcasecmp
 		#define strcasecmp	_stricmp
 		#define strncasecmp	_strnicmp

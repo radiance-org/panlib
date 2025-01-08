@@ -107,7 +107,7 @@ set(rtrad_SOURCES
 if(UNIX)
 	list(APPEND rtrad_SOURCES ${RADIANCE_COMMON_DIR}/unix_process.c)
   if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-		list(APPEND rtrad_SOURCES ${RADIANCE_COMMON_DIR}/strnstr.c ${RADIANCE_COMMON_DIR}/strlcpy.c)
+	list(APPEND rtrad_SOURCES ${RADIANCE_COMMON_DIR}/strnstr.c ${RADIANCE_COMMON_DIR}/strlcpy.c)
   endif()
 else()
 	list(APPEND rtrad_SOURCES ${RADIANCE_COMMON_DIR}/win_process.c ${RADIANCE_COMMON_DIR}/win_popen.c ${RADIANCE_COMMON_DIR}/win_usleep.c ${RADIANCE_COMMON_DIR}/strnstr.c ${RADIANCE_COMMON_DIR}/strlcpy.c)
