@@ -1,10 +1,14 @@
 # panlib
-The panlib library consists of over 30 headers and 75 program modules,
+The Pancine library consists of over 30 headers and 75 program modules,
 with a mixture of C and C++ interfaces.
 Many of these routines depend on the Radiance library held in ray/src/common,
 which must be included with all builds as a header directory, and linked to librtrad.a
 to create a binary.  Most tools further depend on image i/o libraries for JPEG, TIFF,
-and OpenEXR.  (Radiance HDR and BMP are included in rtrad.a)  In general, it is best
+and OpenEXR.  (Radiance HDR and BMP are included in -lrtrad)
+Support for image i/o is decided and set at the main() call-level, offering maximum
+flexibility for builds on system with missing libraries or limited i/o requirements.
+(E.g., a tool that reads and analyzes images may have no need for image writers at all.)
+In general, it is best
 to link all libraries statically, as there are too many different versions floating
 about and they disagree on what features to support and the details of how to support them.
 
@@ -13,8 +17,8 @@ These functions provide basic image format support (reading and writing) along w
 general routines for copying, linking and unlinking image subareas, resampling, colorspace
 conversion, histogram computation and matching, weighted averaging, blurring,
 image pyramids for fast resampling, general filtering and convolution, warping,
-rotation, image blending, limited alpha map manipulation, white-balancing,
-bilaterial filtering and denoising, and blending panorma subimages.
+rotation, dilation and erosion, alpha map manipulation, image blending, white-balancing,
+bilaterial filtering and denoising, and blending panormas.
 
 The C++ interface prototypes are spread between "panimage.h" which describes the
 basic image class, and specialty classes and APIs for various operations supported.
