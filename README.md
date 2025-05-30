@@ -64,3 +64,9 @@ pthumb.h - Photosphere thumbnail creator and memory/disk cache manager
 textform.h - text drawing base class
 
 textmap.h - text class for drawing into bitmaps
+
+tiffin.h - basic TIFF metadata input class
+
+If you have specific questions about the library or its use, please write to Greg Ward at
+<GJWard@lbl.gov>.  If you have a bug to report or a contribution to make, you probably
+know how to use github better than he does, so go for it.
