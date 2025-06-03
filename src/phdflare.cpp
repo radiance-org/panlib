@@ -19,7 +19,7 @@
 #endif
 
 #ifndef PHDFRES
-#define PHDFRES		200			// working resolution
+#define PHDFRES		300			// working resolution
 #endif
 
 #ifndef PHDFTHRESH

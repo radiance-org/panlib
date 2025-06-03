@@ -165,14 +165,12 @@ ERreadRec(ImgReader *ir, ImgReadBuf *rb)
 }
 
 // EXR reader interface
-extern "C" {
 extern const ImgReaderInterface IRInterfaceEXR;
 const ImgReaderInterface IRInterfaceEXR = {
 	"EXR.ilm",
 	&ERopen, NULL, &ERgetInfo, NULL,
 	&ERtoneMapping, &ERreadRec, &ERclose
 };
-}
 
 // Open a new EXR file
 ExrReader::ExrReader(const char fname[]) : exr(fname)

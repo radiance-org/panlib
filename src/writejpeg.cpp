@@ -231,9 +231,7 @@ JPEGsupportedCS(const ImgColorSpace *csp, int)
 }
 
 // JPEG writer interface
-extern "C" {
 extern const ImgWriterInterface	IWInterfaceJPEG;
 const ImgWriterInterface	IWInterfaceJPEG = {
 	"jpg", &JPEGsupportedCS, &JPEGwriteImage
 };
-}

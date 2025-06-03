@@ -1485,9 +1485,9 @@ PrenderImageR(ImgStruct *ib, ImgReader *ir, int quiet)
 	 *  better to read strips, but I nearly went insane trying to write
 	 *  that little piece of code....
 	 */
-	if (PmatchSuffix("jpg", ir->ri->suffixList)) {	/* JPEGlib downsamples */
+	if (PmatchSuffix("jpg", ir->ri->suffixList)) {
 		rdb.subsample = ir->yres/ib->yres;
-		if (rdb.subsample >= 8)
+		if (rdb.subsample >= 8)		/* JPEGlib downsamples */
 			rdb.subsample = 8;
 		else if (rdb.subsample >= 4)
 			rdb.subsample = 4;
@@ -1519,7 +1519,7 @@ PrenderImageR(ImgStruct *ib, ImgReader *ir, int quiet)
 	if (IRreadRec(ir, &rdb) != IREnone)	/* read (and subsample) */
 		goto fail;
 	if ((rdb.buf != ib->img) & (rdb.buf != mybuf)) {
-		DTESTF(!quiet, DMCwarning, "Unsupported image conversion for %s",
+		DTESTF(!quiet, DMCparameter, "Unsupported image conversion for %s",
 					ir->encoding);
 		free(rdb.buf);
 		goto fail;

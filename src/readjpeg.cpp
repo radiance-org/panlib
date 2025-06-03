@@ -128,14 +128,12 @@ JRreadRec(ImgReader *ir, ImgReadBuf *rb)
 }
 
 // JPEG reader interface
-extern "C" {
 extern const ImgReaderInterface IRInterfaceJPEG;
 const ImgReaderInterface IRInterfaceJPEG = {
 	"JPEG.jpg.jfif.jff.jiff",
 	&JRopen, NULL, &JRgetInfo, &JRgetThumbnail,
 	NULL, &JRreadRec, &JRclose
 };
-}
 
 // Constructor for JPEG reader
 JPEGReader::JPEGReader(const char *fname)
@@ -427,17 +425,18 @@ JPEGReader::ReadRec(ImgReadBuf *rb)
 
 	if (!PmatchColorSpace(&rb->cs, &cs, PICMformat|PICMchroma|PICMwhite) ||
 			rb->cs.logorig > .0f || 
-			(rb->cs.dtype == IDTfloat && !ReadingHDR())) {
+			(rb->cs.dtype == IDTfloat) & !ReadingHDR()) {
 		rb->cs = cs;			// make caller work
 		if (!ReadingHDR())
 			rb->cs.dtype = IDTubyte;
 		rb->buf = NULL;
 	}
-	if (rb->subsample != (int)jhinf.cinfo.scale_denom) {
+	if ((rb->subsample != (int)jhinf.cinfo.scale_denom) &
+			(jhinf.cinfo.scale_denom != 1)) {
 		rb->subsample = jhinf.cinfo.scale_denom;
 		rb->buf = NULL;
 	}
-	if (!rb->buf) {				// need new buffer
+	if (!rb->buf) {				// need new buffer?
 		rb->r.xleft = 0;		// use scanline-sized buffer
 		rb->r.xright = xres;
 		rb->r.ybottom = rb->r.ytop + rb->subsample;
@@ -456,41 +455,52 @@ JPEGReader::ReadRec(ImgReadBuf *rb)
 		}
 	}
 						// read scanline(s)
-	const int	nssamps = (rb->r.xright - rb->r.xleft)/rb->subsample *
-					ImgPixelLen[rb->cs.format];
-	const int	ssiz = nssamps * ImgDataSize[rb->cs.dtype];
-	const int	nscn = (rb->r.ybottom - rb->r.ytop)/rb->subsample;
+	const int	bwidth = (rb->r.xright - rb->r.xleft)/rb->subsample;
+	const int	bheight = (rb->r.ybottom - rb->r.ytop)/rb->subsample;
 	int		nsrd = 0;
-	JSAMPLE *	lscan = NULL;
-	JHSAMPLE *	hscan = NULL;
-	if ((rb->r.xleft == 0) & (rb->r.xright == xres)) {
+	if ((rb->r.xleft == 0) & (rb->r.xright == xres) &
+			(rb->subsample == (int)jhinf.cinfo.scale_denom)) {
+		const int	nssamps = bwidth * ImgPixelLen[rb->cs.format];
+		JSAMPLE *	lscan = NULL;
+		JHSAMPLE *	hscan = NULL;
 		if (ReadingHDR()) hscan = (JHSAMPLE *)rb->buf;
 		else lscan = (JSAMPLE *)rb->buf;
-		for (nsrd = 0; nsrd < nscn; nsrd++) {
+		for (nsrd = 0; nsrd < bheight; nsrd++) {
 			if (!JPnextScanline(lscan, hscan))
 				break;
 			if (ReadingHDR()) hscan += nssamps;
 			else lscan += nssamps;
 		}
-	} else {				// read partial scanlines
-		void *	slp;
-		if (ReadingHDR()) {
-			hscan = hdrscan;
-			slp = (void *)(hscan + rb->r.xleft/rb->subsample *
-						ImgPixelSize(&rb->cs));
-		} else {
-			lscan = ldrscan;
-			slp = (void *)(lscan + rb->r.xleft/rb->subsample *
-						ImgPixelSize(&rb->cs));
-		}
-		for (nsrd = 0; nsrd < nscn; nsrd++) {
-			if (!JPnextScanline(lscan, hscan))
+	} else {				// read partial/subsampled scanlines
+		const int	psiz = ImgPixelSize(&rb->cs);
+		const int	ssiz = bwidth * psiz;
+		uby8 * const	slp = (ReadingHDR() ? (uby8 *)hdrscan : (uby8 *)ldrscan)
+					+ rb->r.xleft/(int)jhinf.cinfo.scale_denom * psiz;
+
+		for (nsrd = 0; nsrd < bheight; nsrd++) {
+			if (!JPnextScanline())	// get scanline we will use
 				break;
-			memcpy(rb->buf + nsrd*ssiz, slp, ssiz);
+			if (rb->subsample == (int)jhinf.cinfo.scale_denom) {
+				memcpy(rb->buf + nsrd*ssiz, slp, ssiz);
+			} else /* jhinf.cinfo.scale_denom == 1 */ {
+				uby8 *	bp = rb->buf + nsrd*ssiz;
+				uby8 *	jp = slp;
+				int	n = bwidth;
+				while (n-- > 0) {
+					memcpy(bp, jp, psiz);
+					bp += psiz;
+					jp += psiz*rb->subsample;
+				}
+						// skip unused scanlines
+				for (n = rb->subsample; --n > 0; )
+					if (!JPnextScanline())
+						break;
+				if (n) break;
+			}
 		}
 	}
 	JumpSet();
-	return (nsrd == nscn);			// did we get them all?
+	return (nsrd == bheight);		// did we get them all?
 }
 
 // Diagnose a JPEG error and transfer to errMsg and errCode
