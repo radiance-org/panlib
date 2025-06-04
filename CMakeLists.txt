@@ -32,11 +32,7 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(rtrad)
 
-set(IMATH_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/Imath)
-set(IMATH_IS_SUBPROJECT TRUE)
-add_subdirectory(${IMATH_DIR})
-set(IMATH_INCLUDE_DIR ${IMATH_DIR}/src/Imath ${CMAKE_CURRENT_BINARY_DIR}/external/Imath/config)
-
+# Configure OpenEXR (which includes Imath)
 set(OPENEXR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/openexr)
 set(OPENEXR_IS_SUBPROJECT TRUE)
 set(OPENEXR_INSTALL ON)
@@ -44,10 +40,14 @@ set(OPENEXR_INSTALL_TOOLS OFF)
 set(OPENEXR_BUILD_LIBS TRUE)
 set(OPENEXR_BUILD_EXAMPLES FALSE)
 set(OPENEXR_BUILD_TOOLS FALSE)
+# Let OpenEXR handle Imath configuration
+set(OPENEXR_FORCE_INTERNAL_IMATH ON)
 add_subdirectory(${OPENEXR_DIR})
+
+# Set include directories for OpenEXR and Imath
 set(OPENEXR_SOURCE_DIR ${OPENEXR_DIR}/src/lib)
 set(OPENEXR_INCLUDE_DIR ${OPENEXR_SOURCE_DIR}/OpenEXR ${OPENEXR_SOURCE_DIR}/Iex ${CMAKE_CURRENT_BINARY_DIR}/external/openexr/cmake)
-
+set(IMATH_INCLUDE_DIR ${OPENEXR_DIR}/src/lib/Imath ${CMAKE_CURRENT_BINARY_DIR}/external/openexr/src/lib/Imath)
 
 set(tiff-tools OFF CACHE BOOL "" FORCE)
 set(tiff-tests OFF CACHE BOOL "" FORCE)
