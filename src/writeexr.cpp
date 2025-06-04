@@ -206,7 +206,9 @@ ExrWriteImage(const char *fname, const ImgWriteBuf *wb)
 	return (long)flen;
 }
 
+extern "C" {
 extern const ImgWriterInterface	IWInterfaceEXR;
 const ImgWriterInterface	IWInterfaceEXR = {
 	"exr", &ExrSupportedCS, &ExrWriteImage
 };
+}

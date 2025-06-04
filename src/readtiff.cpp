@@ -192,12 +192,14 @@ TRreadRec(ImgReader *ir, ImgReadBuf *rb)
 }
 
 // TIFF reader interface
+extern "C" {
 extern const ImgReaderInterface IRInterfaceTIFF;
 const ImgReaderInterface IRInterfaceTIFF = {
 	"TIFF.tif",
 	&TRopen, &TRseekFrame, &TRgetInfo, &TRgetThumbnail,
 	&TRtoneMapping, &TRreadRec, &TRclose
 };
+}
 
 // Constructor for TIFF reader
 TIFFReader::TIFFReader(const char *fname)

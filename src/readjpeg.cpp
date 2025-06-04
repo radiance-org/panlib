@@ -128,12 +128,14 @@ JRreadRec(ImgReader *ir, ImgReadBuf *rb)
 }
 
 // JPEG reader interface
+extern "C" {
 extern const ImgReaderInterface IRInterfaceJPEG;
 const ImgReaderInterface IRInterfaceJPEG = {
 	"JPEG.jpg.jfif.jff.jiff",
 	&JRopen, NULL, &JRgetInfo, &JRgetThumbnail,
 	NULL, &JRreadRec, &JRclose
 };
+}
 
 // Constructor for JPEG reader
 JPEGReader::JPEGReader(const char *fname)
