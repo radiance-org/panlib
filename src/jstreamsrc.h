@@ -11,6 +11,10 @@
 using namespace std;
 #include <setjmp.h>
 
+#ifndef SIZEOF
+#define SIZEOF(object)	((size_t) sizeof(object))
+#endif
+
 struct jumper_struct {
 	jmp_buf	b;
 	int	w;

@@ -31,7 +31,7 @@ MatrixWriteHeader(const ImgWriteBuf *wb, FILE *fout)
 	else if (wb->csp->format == IPFxyz)
 		fputprims((RGBPRIMP)ICS_XYZ.chroma, fout);
 						/* non-square pixels? */
-	if ((wb->pixAspect < 0.99) | (wb->pixAspect > 1.01))
+	if ((wb->pixAspect < 0.995) | (wb->pixAspect > 1.005))
 		fputaspect(1./wb->pixAspect, fout);
 						/* dimensions, matrix-style */
 	fprintf(fout, "NROWS=%d\nNCOLS=%d\nNCOMP=%d\n", wb->yres, wb->xres,

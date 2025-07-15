@@ -334,11 +334,9 @@ typo_match(const char *entry, const PStringSet &sset)
 {
 	if (entry == NULL || sset.GetSize() <= 0)
 		return NULL;
-	const int	slen = strlen(entry);
-	if (slen <= 3)
-		return NULL;				// too short for typos
 	if (sset.Find(entry) >= 0)
 		return NULL;				// has perfect match
+	const int	slen = strlen(entry);
 	int		nearest = slen/10 + 2;		// need better than this
 	const char *	bestMatch = NULL;
 	int		n = sset.GetSize();
@@ -376,5 +374,7 @@ typo_match(const char *entry, const PStringSet &sset)
 			nearest = nmiss;
 		}
 	}
-	return bestMatch;
+	if ((nearest > 0) & (slen <= 3))
+		return NULL;				// too short for typos
+	return bestMatch;				// may be case mismatch
 }

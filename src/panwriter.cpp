@@ -13,17 +13,18 @@
 #include "panimage.h"
 
 // Load standard image writers
-bool PloadStandardWriters()
+bool
+PloadStandardWriters()
 {
-    bool ok = true;
-    
-    ok &= PanImage::AddImageWriter(&IWInterfaceJPEG);
-
-    ok &= PanImage::AddImageWriter(&IWInterfaceTIFF);
-
-    ok &= PanImage::AddImageWriter(&IWInterfaceRad);
-
-    ok &= PanImage::AddImageWriter(&IWInterfaceEXR);
-    
-    return ok;
+	bool	ok = true;
+	
+	ok &= PanImage::AddImageWriter(&IWInterfaceJPEG);
+	ok &= PanImage::AddImageWriter(&IWInterfaceTIFF);
+	ok &= PanImage::AddImageWriter(&IWInterfaceRad);
+	ok &= PanImage::AddImageWriter(&IWInterfaceEXR);
+	// ok &= PanImage::AddImageWriter(&IWInterfaceDPT);
+	// ok &= PanImage::AddImageWriter(&IWInterfaceNRM);
+	// ok &= PanImage::AddImageWriter(&IWInterfaceMTX);
+	
+	return ok;
 }

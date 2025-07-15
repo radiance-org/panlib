@@ -91,17 +91,17 @@ public:
 	bool		CheckLoad();
 			// Correct coordinates to square aspect pixels
 	void		CorrectAspect(int *xp, int *yp) const {
-				if (pixAspect < 0.99f)
+				if (pixAspect < 0.995f)
 					*xp = int(*xp*pixAspect + .5f);
-				else if (pixAspect > 1.01f)
+				else if (pixAspect > 1.005f)
 					*yp = int(*yp/pixAspect + .5f);
 			}
 			// Corresponding position in original image
 	void		OrigAspect(int *xp, int *yp) const {
-				if (pixAspect < 0.99f) {
+				if (pixAspect < 0.995f) {
 					*xp = int(*xp/pixAspect + .5f);
 					if (*xp > oxres) *xp = oxres;
-				} else if (pixAspect > 1.01f) {
+				} else if (pixAspect > 1.005f) {
 					*yp = int(*yp*pixAspect + .5f);
 					if (*yp > oyres) *yp = oyres;
 				}
@@ -293,19 +293,19 @@ public:
 	void		CorrectAspect(int *xp, int *yp) const {
 				if (dlp != NULL)
 					dlp->CorrectAspect(xp, yp);
-				else if (pixAspect < 0.99f)
+				else if (pixAspect < 0.995f)
 					*xp = int(*xp*pixAspect + .5f);
-				else if (pixAspect > 1.01f)
+				else if (pixAspect > 1.005f)
 					*yp = int(*yp/pixAspect + .5f);
 			}
 			// Corresponding position in original image
 	void		OrigAspect(int *xp, int *yp) const {
 				if (dlp != NULL) {
 					dlp->OrigAspect(xp, yp);
-				} else if (pixAspect < 0.99f) {
+				} else if (pixAspect < 0.995f) {
 					*xp = int(*xp/pixAspect + .5f);
 					if (*xp > oxres) *xp = oxres;
-				} else if (pixAspect > 1.01f) {
+				} else if (pixAspect > 1.005f) {
 					*yp = int(*yp*pixAspect + .5f);
 					if (*yp > oyres) *yp = oyres;
 				}

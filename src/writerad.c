@@ -34,7 +34,7 @@ RadWriteHeader(const ImgWriteBuf *wb, FILE *pout)
 	if (wb->csp->format == IPFrgb)
 		fputprims((RGBPRIMP)wb->csp->chroma, pout);
 						/* pixel aspect ratio */
-	if ((wb->pixAspect < .99) | (wb->pixAspect > 1.01))
+	if ((wb->pixAspect < .995) | (wb->pixAspect > 1.005))
 		fputaspect(1./wb->pixAspect, pout);
 						/* pixel format */
 	fputformat((char *)(wb->csp->format==IPFxyz ? CIEFMT : COLRFMT), pout);
@@ -112,14 +112,17 @@ writerr:
 static const char *
 RadSupportedCS(const ImgColorSpace *csp, int qual)
 {
-	if (csp->logorig > 0)
+	if ((csp->gamma != 1) | (csp->logorig > 0))
 		return NULL;
 	if (csp->dtype != IDTfloat)
 		return NULL;
-	if ((qual >= 100) & (csp->format == IPFrgb))
-		return "Radiance 32-bit RGBE";
-	if ((qual >= 100) & (csp->format == IPFxyz))
-		return "Radiance 32-bit XYZE";
+	if (qual >= 100) {
+		if (csp->format == IPFrgb)
+			return "Radiance 32-bit RGBE";
+		if (csp->format == IPFxyz)
+			return "Radiance 32-bit XYZE";
+		return NULL;
+	}
 	if (csp->format == IPFrgb)
 		return "Radiance RLE RGBE";
 	if (csp->format == IPFxyz)

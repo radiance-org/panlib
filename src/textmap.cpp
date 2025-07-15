@@ -8,7 +8,7 @@
  *  Class to render text onto a 2-D bitmap
  */
 
-#include "rtio.h"
+#include "paths.h"
 #include "pdraw.h"
 #include "textmap.h"
 #include "font.h"

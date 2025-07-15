@@ -517,13 +517,13 @@ public:
 				if (PDBgetField(ircd,PDBFcrop).Get(rect,4) != 4)
 					return GetImage(ims);
 				ImgRect	rct;
-				if (irdr->pixAspect < 0.98f) {
+				if (irdr->pixAspect < 0.995f) {
 					rct.xleft = irdr->pixAspect*rect[0] + .5f;
 					rct.xright = irdr->pixAspect*rect[2] + .5f;
 				} else {
 					rct.xleft = rect[0]; rct.xright = rect[2];
 				}
-				if (irdr->pixAspect > 1.02f) {
+				if (irdr->pixAspect > 1.005f) {
 					rct.ytop = rect[1]/irdr->pixAspect + .5f;
 					rct.ybottom = rect[3]/irdr->pixAspect + .5f;
 				} else {

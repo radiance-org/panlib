@@ -28,10 +28,7 @@
 #undef fabsf
 #define fabsf(x)	(float)fabs((double)(x))
 #define drand48()	(((double)rand())*(1./RAND_MAX))
-#include <BaseTsd.h>
-typedef SSIZE_T ssize_t;
 #endif
-
 
 #ifndef true
 #define true	1

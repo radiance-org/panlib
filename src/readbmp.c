@@ -40,7 +40,7 @@ BMopen(const char *fname)
 	}
 	br->ri = &IRInterfaceBMP;       /* set reader fields */
 	strcpy(br->file, fname);
-	if (br->bmp->hdr->hRes > 0 && br->bmp->hdr->vRes > 0)
+	if ((br->bmp->hdr->hRes > 0) & (br->bmp->hdr->vRes > 0))
 		br->pixAspect = (double)br->bmp->hdr->vRes/br->bmp->hdr->hRes;
 	else
 		br->pixAspect = 1.;

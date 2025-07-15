@@ -328,6 +328,9 @@ PanImage::Write(const char *imgFile, int qual) const
 					 	(iwb.xres * tan(M_PI/360.*vsiz));
 			else if (vtype == 'l')
 				iwb.pixAspect = iwb.yres*hsiz / (iwb.xres*vsiz);
+
+			if ((.995 <= iwb.pixAspect) & (iwb.pixAspect <= 1.005))
+				iwb.pixAspect = 1;	// let it go if < 0.5%
 		}
 	}
 	sprintf(dmessage_buf, "Writing %s '%s'", itype, imgFile);

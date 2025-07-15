@@ -786,7 +786,7 @@ PThumbList::RestoreMemory()
 	ImgReader *	irdr = PopenImageF(imgfile, true, &IRInterfaceJPEG);
 	if (irdr == NULL)
 		return false;		// doesn't exist or not JPEG
-	if ((irdr->pixAspect < .98f) | (irdr->pixAspect > 1.02f))
+	if ((irdr->pixAspect < .995f) | (irdr->pixAspect > 1.005f))
 		return false;		// should never happen!!
 	oWidth = irdr->xres;
 	oHeight = irdr->yres;

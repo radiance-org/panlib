@@ -493,7 +493,7 @@ recordImageInfo(DBRecord *dr, ImgReader *ir)
 		PDBsetField(dr, PDBFxdensity, float(info.hdensity));
 		PDBsetField(dr, PDBFydensity,
 					float(info.hdensity*ir->pixAspect));
-	} else if ((ir->pixAspect < .98f) | (ir->pixAspect > 1.02f)) {
+	} else if ((ir->pixAspect < .995f) | (ir->pixAspect > 1.005f)) {
 		PDBsetField(dr, PDBFxdensity, 72.f);
 		PDBsetField(dr, PDBFydensity, float(72.f*ir->pixAspect));
 	}
@@ -883,8 +883,7 @@ POrient::OrientImage(ImgStruct *dst, const ImgStruct *src) const
 	 * occupy exactly the same memory footprint.
 	 */
 	ABitMap2	pmark(GetWidth(), GetHeight());
-	uby8		ptmp[6*sizeof(double)];
-	DASSERT((int)sizeof(ptmp) >= psiz);
+	uby8		ptmp[MaxPixelSize];
 	idst = *dst;
 	idst.xres = GetWidth(); idst.yres = GetHeight();
 	idst.rowsize = idst.xres*psiz;

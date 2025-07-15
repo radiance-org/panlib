@@ -27,8 +27,7 @@ TFWordList::SetWord(const char *w)
 		return;
 	}
 	int	len = strlen(w);
-	word = new char [len+1];
-	strcpy(word, w);
+	word = strcpy(new char [len+1], w);
 	width = len;
 	addspc = false;
 }
@@ -52,7 +51,8 @@ TextForm::PutWord(const char *word, int flgs, bool spaceAfter)
 			ok = false;
 		}
 		tfw->width = GetWordWidth(word);	// check for full line
-		if (wordList && wordList->addspc && lwcur + tfw->width > GetWidth())
+		if (wordList && wordList->addspc &
+				(lwcur + tfw->width > GetWidth()))
 			if (!EndLine()) {		// new line
 				delete tfw;
 				return false;
@@ -186,7 +186,7 @@ TextForm::EndLine(bool advEmpty)
 		xcur += GetWidth();
 	else
 		xcur += 0.5f*(GetWidth() + lwcur);
-	for (tfw = wordList; ok && tfw; tfw = tfw->next) {
+	for (tfw = wordList; ok & (tfw != NULL); tfw = tfw->next) {
 		if (tfw->addspc)
 			xcur -= spc;
 		if (tfw->width > 0) {

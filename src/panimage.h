@@ -14,7 +14,6 @@
 
 #include "pimage.h"
 #include "imgwriter.h"
-#include "system.h"
 
 /** @brief Wrapper class for Pancine image type
  *
@@ -42,6 +41,7 @@ class PanImage {
 private:
 	ImgColorSpace *	sCSp;		// saved color space
 	ImgInfo *	iinfo;		// image metadata
+	bool		OperatorChecks(const PanImage &src, int lineno) const;
 protected:
 	static const ImgWriterInterface *
 			imgWriter[PAN_MAXWRITER+1];
@@ -59,8 +59,6 @@ protected:
 			}
 			/// Protect color space against PfreeImage()
 	bool		PreserveCS(const ImgColorSpace *csp = NULL);
-			/// Check operands for valid operation
-	bool		OperatorChecks(const PanImage &src, int lineno) const;
 public:
 			/// default math operation flags
 	static short	defMathFlags;
@@ -588,6 +586,7 @@ operator-(PixelVal p)
 {
 	if (!p.csp || p.csp->dtype != IDTfloat) return Pblack;
 	int i = ImgPixelLen[p.csp->format];
+	i -= (p.csp->format == IPFa) | (p.csp->format == IPFrgba);
 	while (i--) p.v.f[i] = -p.v.f[i];
 	return p;
 }

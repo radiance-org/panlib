@@ -1029,7 +1029,6 @@ PautoWhiteBal(ImgStruct *ib, float frac, int orig)
 	if (!setColorConv(&ccvt, &ICS_SharpRGB, ib->csp, 1.f, false))
 		return false;
 	iTmp.img = NULL;
-	iTmp.xres = ib->xres; iTmp.yres = ib->yres;
 	iTmp.csp = &ICS_SharpRGB;
 	if (!PnewImage(&iTmp, .0))
 		return false;

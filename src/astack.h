@@ -3,13 +3,16 @@
  *  pan
  *
  *  Template class for LIFO stack with block allocation (e.g., for flood fills)
+ *  Random access and FIFO also supported, but not quite as efficiently
  *
  *  Created by Greg Ward on 2/21/18.
  *  Copyright 2018 Anyhere Software. All rights reserved.
  *
  */
 
+#ifndef ASTACK_L
 #define	ASTACK_L	512
+#endif
 
 template <class T> struct AStackBlock {
 	AStackBlock<T> *	prev;		// previous stack block

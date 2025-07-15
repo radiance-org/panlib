@@ -214,7 +214,7 @@ typedef struct {
 } PixelVal;
 
 /** Image pixel pointers */
-#define ProwPtr(ib,y)	((ib)->img + (ssize_t)(y)*(ib)->rowsize)
+#define ProwPtr(ib,y)	((ib)->img + (long)(y)*(ib)->rowsize)
 #define PpixP(ib,x,y,s)	(ProwPtr(ib,y) + (x)*(s))
 #define PpixPtr(ib,x,y)	PpixP(ib,x,y,ImgPixelSize((ib)->csp))
 
